@@ -1,0 +1,35 @@
+name: Build Android-Ptrace-Injector
+
+on:
+  push:
+    branches: [ main ]   # 可根据需要修改触发分支
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:    # 允许手动触发
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. 检出代码
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. 设置 Android NDK（使用 r25c，可替换为其他版本）
+      - name: Setup Android NDK
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r25c
+
+      # 3. 执行 ndk-build（默认会编译所有支持的 ABI）
+      - name: Build with ndk-build
+        run: ndk-build
+
+      # 4. 上传编译结果（Injector 二进制文件）
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Injector-binaries
+          # 匹配所有 ABI 目录下的 Injector 文件
+          path: libs/**/Injector
